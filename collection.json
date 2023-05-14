@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "0ad10352-b4db-49c9-a724-305d0b5445f8",
+		"name": "Api Automation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Paso 1 - Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response contains logged in user\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    pm.expect(response.message).to.contain(\"logged in user\")\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/user/login?username={{userame}}&password={{password}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user",
+						"login"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "{{userame}}"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paso 2 - Listar mascotas disponibles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response contains only pets whose status is available\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    const statuses = response.map(pet => pet.status)\r",
+							"    const availableStatus = pm.environment.get('availableStatus')\r",
+							"    const allAreAvailable = statuses.every(status => status === availableStatus)\r",
+							"    pm.expect(allAreAvailable).to.be.true\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/pet/findByStatus?status={{availableStatus}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"pet",
+						"findByStatus"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "{{availableStatus}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paso 3 - Consultar datos de una mascota disponible",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response contains the pet requested\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    const petId = Number(pm.environment.get('petId'))\r",
+							"    pm.expect(response.id).to.be.eql(petId);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response shows the pet available\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    const availableStatus = pm.environment.get('availableStatus')\r",
+							"    pm.expect(response.status).to.be.eql(availableStatus)\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/pet/{{petId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"pet",
+						"{{petId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paso 4 - Crear una orden para una mascota",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response contains the pet requested\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    const petId = Number(pm.environment.get('petId'))\r",
+							"    pm.expect(response.petId).to.be.eql(petId);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response contains the status placed\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    const placedStatus = 'placed'\r",
+							"    pm.expect(response.status).to.be.eql(placedStatus)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"fetch the current state of the pet\", function () {\r",
+							"    const baseUrl = pm.environment.get('baseUrl')\r",
+							"    const petId = pm.environment.get('petId')\r",
+							"    const url = `${baseUrl}/pet/${petId}`\r",
+							"    pm.sendRequest(url, (err, res) => {\r",
+							"        const response = res.json()\r",
+							"        pm.test(\"response shows that the pet status is no longer available\", function () {\r",
+							"            const availableStatus = pm.environment.get('availableStatus')\r",
+							"            pm.expect(response.status).to.not.be.eql(availableStatus)\r",
+							"        })\r",
+							"    })\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 0,\r\n  \"petId\": {{petId}},\r\n  \"quantity\": 1,\r\n  \"shipDate\": \"2023-05-14T18:39:00.631Z\",\r\n  \"status\": \"placed\",\r\n  \"complete\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/store/order",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"store",
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paso 5 - Actualizar usuario",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"fetch the current state of the user\", function () {\r",
+							"    const username = pm.environment.get('username')\r",
+							"    const baseUrl = pm.environment.get('baseUrl')\r",
+							"    const url = `${baseUrl}/user/${username}`\r",
+							"    pm.sendRequest(url, (err, res) => {\r",
+							"        const response = res.json()\r",
+							"        pm.test('response shows the updated phone number', function () {\r",
+							"            const expectedPhoneNumber = pm.environment.get('expectedPhoneNumber')\r",
+							"            pm.expect(response.phone).to.be.eql(expectedPhoneNumber)\r",
+							"        })\r",
+							"    })\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const expectedPhoneNumber = Math.floor(Math.random() * 9000000000) + 1000000000;\r",
+							"pm.environment.set('expectedPhoneNumber', expectedPhoneNumber)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 0,\r\n  \"username\": \"germansandovalit\",\r\n  \"firstName\": \"german\",\r\n  \"lastName\": \"sandoval\",\r\n  \"email\": \"mail@mail.com\",\r\n  \"password\": \"123456\",\r\n  \"phone\": \"{{expectedPhoneNumber}}\",\r\n  \"userStatus\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/user/{{username}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user",
+						"{{username}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Paso 6 - Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"response contains message ok\", function () {\r",
+							"    const response = pm.response.json()\r",
+							"    pm.expect(response.message).to.be.eql('ok')\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/user/logout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
