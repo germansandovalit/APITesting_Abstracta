@@ -241,7 +241,7 @@
 					"script": {
 						"exec": [
 							"const expectedPhoneNumber = Math.floor(Math.random() * 9000000000) + 1000000000;\r",
-							"pm.environment.set('expectedPhoneNumber', expectedPhoneNumber)"
+							"pm.environment.set('expectedPhoneNumber', expectedPhoneNumber.toString())"
 						],
 						"type": "text/javascript"
 					}
